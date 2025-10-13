@@ -1,6 +1,6 @@
 import { Client, Message } from 'whatsapp-web.js';
 import * as qrcode from 'qrcode-terminal';
-import { sendMessageToOpenAI, createConversationContext, limitConversationHistory, testOpenAIConnection, ConversationMessage } from './openai-simple';
+import { sendMessageToOpenAI, createConversationContext, limitConversationHistory, testOpenAIConnection, clearChatSession, getSessionStats, ConversationMessage } from './openai-simple';
 import dotenv from 'dotenv';
 
 // Carrega variáveis de ambiente
@@ -130,10 +130,11 @@ async function handleSpecialCommands(message: Message): Promise<boolean> {
 • !help ou !ajuda - Mostra esta mensagem
 • !clear ou !limpar - Limpa o histórico da conversa
 • !status - Mostra o status do bot
+• !sessions - Mostra sessões ativas do ChatKit
 • !ping - Testa se o bot está funcionando
 
 *Como usar:*
-Simplesmente envie uma mensagem normal e eu responderei usando inteligência artificial!`;
+Simplesmente envie uma mensagem normal e eu responderei usando inteligência artificial conectada ao workflow do Agent Builder!`;
 
             await message.reply(helpText);
             return true;
@@ -141,6 +142,7 @@ Simplesmente envie uma mensagem normal e eu responderei usando inteligência art
         case '!clear':
         case '!limpar':
             conversationHistory.delete(chatId);
+            clearChatSession(chatId); // Limpa session do ChatKit
             await message.reply('✅ Histórico da conversa limpo com sucesso!');
             return true;
 
@@ -150,8 +152,21 @@ Simplesmente envie uma mensagem normal e eu responderei usando inteligência art
 ✅ Bot ativo e funcionando
 📊 Conversas ativas: ${conversationHistory.size}
 🕐 Última atualização: ${new Date().toLocaleString('pt-BR')}`;
-            
+
             await message.reply(statusText);
+            return true;
+
+        case '!sessions':
+        case '!sessões':
+            const sessionStats = getSessionStats();
+            const sessionsText = `📊 *Estatísticas do Workflow*
+
+👥 Chats ativos: ${sessionStats.total}
+🔄 Total de execuções: ${Array.from(sessionStats.sessions).reduce((acc, s) => acc + parseInt(s.sessionId.split('_')[2] || '0'), 0)}
+
+${sessionStats.total > 0 ? `*Chats com workflow ativo:*\n${sessionStats.sessions.map(s => `• ${s.chatId.substring(0, 25)}...`).join('\n')}` : '_Nenhum chat ativo no momento_'}`;
+
+            await message.reply(sessionsText);
             return true;
 
         case '!ping':
