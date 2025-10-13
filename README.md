@@ -50,6 +50,15 @@ npm run build
 
 ### Iniciar o Bot
 
+#### 🪟 Windows - Usando arquivos .bat (Recomendado)
+
+Basta dar duplo clique nos arquivos:
+
+- **`start_dev.bat`** - Inicia em modo desenvolvimento
+- **`start_prod.bat`** - Compila e inicia em modo produção
+
+#### 💻 Via linha de comando
+
 ```bash
 # Modo desenvolvimento (TypeScript)
 npm run dev
@@ -113,17 +122,20 @@ Edite o arquivo `config.ts` para personalizar:
 ## 📁 Estrutura do Projeto
 
 ```
-wwebjs/
+whatsapp-agentkit/
 ├── src/
-│   ├── bot.ts          # Bot principal do WhatsApp
-│   ├── openai-simple.ts # Integração com a API da OpenAI
-│   └── index.ts        # Arquivo de entrada
-├── dist/               # Arquivos compilados (gerado automaticamente)
-├── session/            # Sessão do WhatsApp (gerado automaticamente)
-├── config.ts           # Configurações do projeto
-├── package.json        # Dependências e scripts
-├── tsconfig.json       # Configuração do TypeScript
-└── README.md           # Este arquivo
+│   ├── bot.ts              # Bot principal do WhatsApp
+│   ├── openai-simple.ts    # Integração com a API da OpenAI
+│   └── index.ts            # Arquivo de entrada
+├── dist/                   # Arquivos compilados (gerado automaticamente)
+├── session/                # Sessão do WhatsApp (gerado automaticamente)
+├── start_dev.bat           # 🪟 Iniciar em modo desenvolvimento
+├── start_prod.bat          # 🪟 Iniciar em modo produção
+├── package.json            # Dependências e scripts
+├── tsconfig.json           # Configuração do TypeScript
+├── .env.example            # Exemplo de variáveis de ambiente
+├── README.md               # Este arquivo
+└── RELATORIO_SISTEMA.md    # Documentação técnica completa
 ```
 
 ## 🛠️ Scripts Disponíveis
@@ -181,6 +193,62 @@ O bot gera logs detalhados para monitoramento:
 🤖 Resposta enviada: Olá! Como posso ajudá-lo hoje?
 ```
 
+## 🤖 Desenvolvimento com IA
+
+Este projeto foi desenvolvido com assistência de IA e pode ser facilmente melhorado usando:
+
+### Claude Code
+Ferramenta oficial da Anthropic para desenvolvimento assistido por IA.
+
+```bash
+# Instale o Claude Code
+npm install -g @anthropic/claude-code
+
+# Ou use via VS Code Extension
+# https://marketplace.visualstudio.com/items?itemName=Anthropic.claude-code
+```
+
+**Comandos úteis com Claude Code:**
+- `/help` - Ajuda sobre comandos disponíveis
+- `/review` - Revisar código
+- `/optimize` - Otimizar performance
+- `/test` - Gerar testes automatizados
+- `/docs` - Gerar documentação
+
+### GitHub Copilot
+Alternativa para desenvolvimento assistido por IA.
+
+```bash
+# Use via VS Code Extension
+# https://marketplace.visualstudio.com/items?itemName=GitHub.copilot
+```
+
+### 💡 Dicas para usar IA no projeto:
+
+1. **Adicionar novas funcionalidades**
+   ```
+   "Adicione suporte para mensagens de áudio"
+   "Implemente rate limiting por usuário"
+   ```
+
+2. **Melhorar código existente**
+   ```
+   "Otimize o gerenciamento de histórico"
+   "Adicione testes unitários para bot.ts"
+   ```
+
+3. **Debugar problemas**
+   ```
+   "Por que o bot não está respondendo em grupos?"
+   "Como posso reduzir o uso de tokens da OpenAI?"
+   ```
+
+4. **Documentação**
+   ```
+   "Gere documentação JSDoc para todas as funções"
+   "Crie um guia de contribuição"
+   ```
+
 ## 🤝 Contribuição
 
 1. Fork o projeto
@@ -188,6 +256,8 @@ O bot gera logs detalhados para monitoramento:
 3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
 4. Push para a branch (`git push origin feature/AmazingFeature`)
 5. Abra um Pull Request
+
+**Dica:** Use Claude Code ou GitHub Copilot para acelerar o desenvolvimento!
 
 ## 📄 Licença
 
