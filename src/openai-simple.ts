@@ -125,7 +125,7 @@ export async function sendMessageToOpenAI(
   conversationHistory: ConversationMessage[] = []
 ): Promise<OpenAIResponse> {
   // Usar o workflow padrão
-  const defaultWorkflowId = process.env.WORFLOW_ID || "wf_2V0vUNR8UYZ3xM15B9a910586940994955"; // ID do workflow do seu projeto
+  const defaultWorkflowId = process.env.WORKFLOW_ID || "wf_2V0vUNR8UYZ3xM15B9a910586940994955"; // ID do workflow do seu projeto
   return await runAgentKitWorkflow(defaultWorkflowId, message, context, conversationHistory);
 }
 
