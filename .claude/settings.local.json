@@ -16,7 +16,8 @@
       "Bash(gh repo delete:*)",
       "Bash(ls:*)",
       "Bash(git rm:*)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(node:*)"
     ],
     "deny": [],
     "ask": []
