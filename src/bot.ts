@@ -1,6 +1,6 @@
 import { Client, Message } from 'whatsapp-web.js';
 import * as qrcode from 'qrcode-terminal';
-import { sendMessageToOpenAI, createConversationContext, limitConversationHistory, testOpenAIConnection, ConversationMessage } from './openai-simple';
+import { sendMessageToOpenAI, createConversationContext, limitConversationHistory, testOpenAIConnection, clearChatThread, ConversationMessage } from './openai-simple';
 import dotenv from 'dotenv';
 
 // Carrega variáveis de ambiente
@@ -141,6 +141,7 @@ Simplesmente envie uma mensagem normal e eu responderei usando inteligência art
         case '!clear':
         case '!limpar':
             conversationHistory.delete(chatId);
+            clearChatThread(chatId); // Limpa também a thread do assistant
             await message.reply('✅ Histórico da conversa limpo com sucesso!');
             return true;
 

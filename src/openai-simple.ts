@@ -38,73 +38,99 @@ export interface ConversationContext {
   isGroup: boolean;
 }
 
+// Armazena threads por chat ID
+const chatThreads = new Map<string, string>();
+
 /**
- * Executa um workflow do AgentKit usando a implementação que funciona
- * @param workflowId - ID do workflow
+ * Executa um workflow do AgentKit usando OpenAI Assistants API
+ * @param assistantId - ID do Assistant/Workflow
  * @param userInput - Input do usuário
  * @param context - Contexto adicional para o workflow
- * @param conversationHistory - Histórico da conversa
+ * @param conversationHistory - Histórico da conversa (não usado com Assistants)
  * @returns Promise<OpenAIResponse>
  */
 export async function runAgentKitWorkflow(
-  workflowId: string,
+  assistantId: string,
   userInput: string,
   context?: ConversationContext,
   conversationHistory?: ConversationMessage[]
 ): Promise<OpenAIResponse> {
   try {
-    // Usar diretamente a API de chat da OpenAI
-    const messages: ConversationMessage[] = [
-      {
-        role: "system",
-        content: `Você é um assistente útil do AgentKit. Execute o workflow ${workflowId} conforme solicitado pelo usuário. 
-        
-Contexto da conversa:
-- Contato: ${context?.contactName || 'Usuário'}
-- Plataforma: ${context?.platform || 'whatsapp'}
-- Tipo de mensagem: ${context?.messageType || 'text'}
-- É grupo: ${context?.isGroup ? 'Sim' : 'Não'}
-- Timestamp: ${context?.timestamp || new Date().toISOString()}
+    const chatId = context?.chatId || 'default';
 
-Instruções:
-- Seja amigável e prestativo
-- Mantenha as respostas concisas (máximo 500 caracteres)
-- Use emojis ocasionalmente para tornar a conversa mais amigável
-- Se for uma pergunta sobre AgentKit, responda com informações relevantes
-- Se não souber algo, seja honesto e ofereça ajuda de outra forma
-- Responda sempre em português brasileiro
+    // Obtém ou cria thread para este chat
+    let threadId = chatThreads.get(chatId);
 
-Contexto adicional: ${JSON.stringify(context || {})}`
-      },
-      ...(conversationHistory || []),
-      {
-        role: "user",
-        content: userInput
-      }
-    ];
+    if (!threadId) {
+      console.log(`🔧 Criando nova thread para chat ${chatId}`);
+      const thread = await openai.beta.threads.create();
+      threadId = thread.id;
+      chatThreads.set(chatId, threadId);
+    }
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: messages,
-      temperature: 0.7,
-      max_tokens: 500
+    // Adiciona contexto à mensagem se disponível
+    let messageContent = userInput;
+    if (context) {
+      messageContent = `${userInput}\n\n[Contexto: Contato=${context.contactName}, Plataforma=${context.platform}]`;
+    }
+
+    // Adiciona mensagem do usuário à thread
+    await openai.beta.threads.messages.create(threadId, {
+      role: "user",
+      content: messageContent
     });
 
-    const responseText = response.choices[0]?.message?.content || "Desculpe, não consegui processar sua solicitação.";
-    
+    // Executa o assistant e aguarda conclusão
+    console.log(`🤖 Executando assistant ${assistantId}...`);
+    const run = await openai.beta.threads.runs.createAndPoll(threadId, {
+      assistant_id: assistantId
+    });
+
+    if (run.status !== 'completed') {
+      throw new Error(`Run ${run.status}: ${run.last_error?.message || 'Unknown error'}`);
+    }
+
+    // Obtém as mensagens da thread
+    const messages = await openai.beta.threads.messages.list(threadId, {
+      limit: 1,
+      order: 'desc'
+    });
+
+    const lastMessage = messages.data[0];
+    if (!lastMessage || lastMessage.role !== 'assistant') {
+      throw new Error('Nenhuma resposta do assistant');
+    }
+
+    // Extrai o texto da resposta
+    const textContent = lastMessage.content.find(c => c.type === 'text');
+    const responseText = textContent && 'text' in textContent
+      ? textContent.text.value
+      : "Desculpe, não consegui processar sua solicitação.";
+
+    console.log(`✅ Resposta recebida do assistant`);
+
     return {
       text: responseText,
       success: true
     };
 
   } catch (error) {
-    console.error(`Erro ao executar workflow ${workflowId}:`, error);
+    console.error(`❌ Erro ao executar assistant ${assistantId}:`, error);
     return {
-      text: "Desculpe, ocorreu um erro ao processar sua solicitação.",
+      text: "Desculpe, ocorreu um erro ao processar sua solicitação com o assistant.",
       success: false,
       error: (error as Error).message
     };
   }
+}
+
+/**
+ * Limpa a thread de um chat específico
+ * @param chatId - ID do chat
+ */
+export function clearChatThread(chatId: string): void {
+  chatThreads.delete(chatId);
+  console.log(`🗑️ Thread do chat ${chatId} removida`);
 }
 
 /**

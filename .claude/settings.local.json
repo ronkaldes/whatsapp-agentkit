@@ -9,7 +9,14 @@
       "Bash(git branch:*)",
       "Bash(git remote add:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(git config:*)",
+      "Bash(git push:*)",
+      "Bash(git remote set-url:*)",
+      "Bash(gh repo delete:*)",
+      "Bash(ls:*)",
+      "Bash(git rm:*)",
+      "WebSearch"
     ],
     "deny": [],
     "ask": []
