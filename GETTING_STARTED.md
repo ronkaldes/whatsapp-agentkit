@@ -32,11 +32,25 @@ npm run preview          # Preview dashboard
 
 ### 1. Configure Environment Variables
 
-The `.env` file should already have Supabase credentials. You need to add:
+You need to set up two `.env` files:
 
+**Root `.env` file (already has Supabase credentials):**
 ```env
 OPENAI_API_KEY=sk-proj-your-key-here
 WORKFLOW_ID=wf_your-workflow-id
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+**Frontend `.env` file (`frontend/.env`):**
+```env
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+**Quick setup:** Copy Supabase variables to frontend:
+```bash
+cat .env | grep VITE > frontend/.env
 ```
 
 ### 2. Authenticate WhatsApp
@@ -110,10 +124,16 @@ Send these commands in WhatsApp to interact with the bot:
 - Ensure port 5173 is not in use
 - Delete `./session/` folder to reset WhatsApp auth
 
+### Dashboard shows blank page
+- Missing `frontend/.env` file with Supabase credentials
+- Run: `cat .env | grep VITE > frontend/.env`
+- Restart dashboard: `npm run dev:frontend`
+- Check browser console for "supabaseUrl is required" error
+
 ### Dashboard shows offline
 - Make sure bot is running (`npm run dev`)
 - Check browser console for errors
-- Verify Supabase credentials in `.env`
+- Verify Supabase credentials in `.env` AND `frontend/.env`
 
 ### Messages not appearing in dashboard
 - Confirm bot is running and connected

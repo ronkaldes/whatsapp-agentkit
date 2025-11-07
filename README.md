@@ -36,13 +36,25 @@ cd whatsapp-agentkit
 npm install
 ```
 
-3. **Configure a API Key da OpenAI:**
-   - Crie um arquivo `.env` na raiz do projeto
-   - Adicione sua chave da OpenAI:
-```env
-OPENAI_API_KEY=sua_chave_da_openai_aqui
-WORFLOW_ID=seu_workflow_aqui
-```
+3. **Configure as variáveis de ambiente:**
+
+   Você precisa configurar dois arquivos `.env`:
+
+   **a) Arquivo `.env` na raiz do projeto:**
+   ```env
+   OPENAI_API_KEY=sua_chave_da_openai_aqui
+   WORKFLOW_ID=seu_workflow_aqui
+   VITE_SUPABASE_URL=sua_url_do_supabase
+   VITE_SUPABASE_ANON_KEY=sua_chave_publica_do_supabase
+   ```
+
+   **b) Arquivo `frontend/.env` (necessário para o dashboard):**
+   ```env
+   VITE_SUPABASE_URL=sua_url_do_supabase
+   VITE_SUPABASE_ANON_KEY=sua_chave_publica_do_supabase
+   ```
+
+   **Importante:** As credenciais do Supabase já estão configuradas. Você só precisa adicionar suas chaves da OpenAI.
 
 4. **Compile o TypeScript:**
 ```bash
@@ -341,6 +353,15 @@ server {
 - Verifique se o Node.js está na versão 18+
 - Confirme se a API Key da OpenAI está correta
 - Tente deletar a pasta `session/` e reconectar
+
+### Dashboard mostra página em branco
+- **Causa:** Falta o arquivo `frontend/.env` com as credenciais do Supabase
+- **Solução:** Crie o arquivo `frontend/.env` e copie as variáveis `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY` do arquivo `.env` da raiz
+- Exemplo:
+  ```bash
+  cat .env | grep VITE > frontend/.env
+  ```
+- Reinicie o servidor de desenvolvimento: `npm run dev:frontend`
 
 ### QR Code não aparece
 - Verifique se o `qrcode-terminal` está instalado
