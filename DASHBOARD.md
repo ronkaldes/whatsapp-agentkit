@@ -75,9 +75,7 @@ VITE_SUPABASE_URL=your_supabase_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
-These are read from:
-- `/tmp/cc-agent/59821353/project/.env` (for the bot)
-- `/tmp/cc-agent/59821353/project/frontend/.env` (for the dashboard)
+These are read from the root `.env` file (located at the project root). Vite automatically loads environment variables prefixed with `VITE_` from this file during development and makes them available to both the bot and the dashboard frontend
 
 ## Database Schema
 

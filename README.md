@@ -249,12 +249,91 @@ npm run preview        # Preview do dashboard em produção
 npm test               # Executa testes (quando implementados)
 ```
 
+## 🚀 Deploy em Produção
+
+### Preparando para Deploy
+
+1. **Compile o projeto:**
+```bash
+npm run build
+```
+
+Isso irá:
+- Compilar o código TypeScript do bot para `dist/`
+- Construir o frontend otimizado em `dist-frontend/`
+
+2. **Configure variáveis de ambiente:**
+
+Certifique-se de que as seguintes variáveis estejam configuradas no ambiente de produção:
+
+```env
+OPENAI_API_KEY=sua_chave_da_openai
+WORKFLOW_ID=seu_workflow_id
+VITE_SUPABASE_URL=sua_url_do_supabase
+VITE_SUPABASE_ANON_KEY=sua_chave_publica_do_supabase
+```
+
+### Deploy do Bot
+
+Execute o bot compilado:
+
+```bash
+npm start
+```
+
+Recomendações para produção:
+- Use um gerenciador de processos como PM2: `pm2 start dist/bot.js --name whatsapp-bot`
+- Configure logs persistentes
+- Implemente reinício automático em caso de falhas
+- Configure backups da pasta `session/` para evitar reautenticação
+
+### Deploy do Dashboard
+
+O dashboard em `dist-frontend/` é uma aplicação estática que pode ser hospedada em:
+
+**Netlify:**
+1. Conecte seu repositório
+2. Configure build command: `npm run build:frontend`
+3. Configure publish directory: `dist-frontend`
+4. Adicione variáveis de ambiente no painel da Netlify
+
+**Vercel:**
+1. Importe o projeto
+2. Configure root directory como `frontend`
+3. Build command: `vite build`
+4. Output directory: `../dist-frontend`
+5. Adicione variáveis de ambiente no painel da Vercel
+
+**Servidor próprio com Nginx:**
+```nginx
+server {
+    listen 80;
+    server_name seu-dominio.com;
+
+    root /caminho/para/dist-frontend;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}
+```
+
+### Considerações de Segurança em Produção
+
+- Nunca exponha a chave `OPENAI_API_KEY` no código frontend
+- Use HTTPS para o dashboard em produção
+- Configure CORS apropriadamente no Supabase
+- Implemente rate limiting se necessário
+- Monitore o uso da API da OpenAI
+
 ## 🔒 Segurança
 
 - ✅ **Sessão local**: Dados de autenticação armazenados localmente
 - ✅ **API Key segura**: Chave da OpenAI em variáveis de ambiente
 - ✅ **Logs controlados**: Informações sensíveis não são logadas
 - ✅ **Tratamento de erros**: Falhas não expõem dados internos
+- ✅ **Database seguro**: Row Level Security (RLS) habilitado nas tabelas Supabase
 
 ## 🐛 Solução de Problemas
 
