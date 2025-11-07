@@ -68,21 +68,14 @@ Navigate to `http://localhost:5173`
 
 ## Environment Variables
 
-The dashboard requires environment variables in `frontend/.env`:
+The dashboard uses environment variables from the root `.env` file:
 
 ```
 VITE_SUPABASE_URL=your_supabase_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
-**Important:** Vite requires environment variables to be in the same directory as the Vite root (`frontend/`). The variables must be in `frontend/.env`, not just the root `.env` file.
-
-**Quick setup:**
-```bash
-cat .env | grep VITE > frontend/.env
-```
-
-If you see a blank page or "supabaseUrl is required" error, the `frontend/.env` file is missing
+Vite is configured to automatically load these from the project root `.env` file
 
 ## Database Schema
 
@@ -147,13 +140,13 @@ npm run preview
 ## Troubleshooting
 
 ### Dashboard shows blank page
-- **Cause:** Missing `frontend/.env` file
-- **Fix:** Run `cat .env | grep VITE > frontend/.env` and restart the dev server
-- Check browser console for "supabaseUrl is required" error
+- Check that `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are in root `.env`
+- Restart the dev server: `npm run dev:frontend`
+- Check browser console for errors
 
 ### Dashboard shows "offline" status
 - Make sure the bot is running (`npm run dev`)
-- Check that environment variables are set in both `.env` and `frontend/.env`
+- Check that environment variables are set in `.env`
 - Verify Supabase connection
 
 ### Messages not appearing

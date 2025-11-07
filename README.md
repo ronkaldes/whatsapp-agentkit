@@ -38,18 +38,10 @@ npm install
 
 3. **Configure as variáveis de ambiente:**
 
-   Você precisa configurar dois arquivos `.env`:
-
-   **a) Arquivo `.env` na raiz do projeto:**
+   Crie um arquivo `.env` na raiz do projeto:
    ```env
    OPENAI_API_KEY=sua_chave_da_openai_aqui
    WORKFLOW_ID=seu_workflow_aqui
-   VITE_SUPABASE_URL=sua_url_do_supabase
-   VITE_SUPABASE_ANON_KEY=sua_chave_publica_do_supabase
-   ```
-
-   **b) Arquivo `frontend/.env` (necessário para o dashboard):**
-   ```env
    VITE_SUPABASE_URL=sua_url_do_supabase
    VITE_SUPABASE_ANON_KEY=sua_chave_publica_do_supabase
    ```
