@@ -2,9 +2,15 @@ import { Client, Message } from 'whatsapp-web.js';
 import * as qrcode from 'qrcode-terminal';
 import { sendMessageToOpenAI, createConversationContext, limitConversationHistory, testOpenAIConnection, clearChatSession, getSessionStats, ConversationMessage } from './openai-simple';
 import dotenv from 'dotenv';
+import { createClient } from '@supabase/supabase-js';
 
 // Carrega variáveis de ambiente
 dotenv.config();
+
+// Inicializa Supabase
+const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
+const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || '';
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Cria o cliente WhatsApp
 const client = new Client({
@@ -38,6 +44,42 @@ let openAIConnected = false;
 // Histórico de conversas por chat
 const conversationHistory = new Map<string, ConversationMessage[]>();
 
+// Função auxiliar para registrar mensagem no Supabase
+async function logMessageToSupabase(chatId: string, contactName: string, messageText: string, isFromBot: boolean): Promise<void> {
+    try {
+        if (!supabaseUrl || !supabaseKey) {
+            return;
+        }
+
+        await supabase.from('messages').insert({
+            chat_id: chatId,
+            contact_name: contactName,
+            message_text: messageText,
+            is_from_bot: isFromBot,
+            timestamp: new Date().toISOString(),
+        });
+    } catch (error) {
+        console.error('Error logging to Supabase:', error);
+    }
+}
+
+// Função auxiliar para atualizar status do bot
+async function updateBotStatus(status: 'online' | 'offline' | 'connecting', qrCode?: string): Promise<void> {
+    try {
+        if (!supabaseUrl || !supabaseKey) {
+            return;
+        }
+
+        await supabase.from('bot_status').insert({
+            status,
+            qr_code: qrCode || null,
+            updated_at: new Date().toISOString(),
+        });
+    } catch (error) {
+        console.error('Error updating bot status:', error);
+    }
+}
+
 /**
  * Processa uma mensagem recebida e gera resposta usando OpenAI
  */
@@ -48,6 +90,9 @@ async function processMessage(message: Message): Promise<void> {
         const contactName = (message as any)._data?.notifyName || message.from;
 
         console.log(`📱 Mensagem recebida de ${contactName}: ${messageText}`);
+
+        // Registra mensagem do usuário no Supabase
+        await logMessageToSupabase(chatId, contactName, messageText, false);
 
         // Ignora mensagens do próprio bot
         if (message.fromMe) {
@@ -95,6 +140,9 @@ async function processMessage(message: Message): Promise<void> {
             // Adiciona resposta ao histórico
             history.push({ role: "assistant", content: response.text });
             conversationHistory.set(chatId, history);
+
+            // Registra resposta do bot no Supabase
+            await logMessageToSupabase(chatId, 'Bot', response.text, true);
 
             // Envia resposta para o WhatsApp
             await message.reply(response.text);
@@ -179,14 +227,15 @@ ${sessionStats.total > 0 ? `*Chats com workflow ativo:*\n${sessionStats.sessions
 }
 
 // Evento: Cliente pronto
-client.once('ready', () => {
+client.once('ready', async () => {
     console.log('✅ Cliente WhatsApp está pronto!');
     console.log('🤖 Bot AgentKit iniciado com sucesso!');
     console.log('📱 Aguardando mensagens...');
+    await updateBotStatus('online');
 });
 
 // Evento: QR Code recebido
-client.on('qr', (qr) => {
+client.on('qr', async (qr) => {
     console.log('📱 QR Code recebido! Escaneie com seu WhatsApp:');
     qrcode.generate(qr, { small: true });
     console.log('\n📱 Abra o WhatsApp no seu celular:');
@@ -194,6 +243,7 @@ client.on('qr', (qr) => {
     console.log('   2. Toque em "Dispositivos conectados"');
     console.log('   3. Toque em "Conectar um dispositivo"');
     console.log('   4. Escaneie o QR Code acima\n');
+    await updateBotStatus('connecting', qr);
 });
 
 // Evento: Autenticação realizada
@@ -207,8 +257,9 @@ client.on('auth_failure', (msg) => {
 });
 
 // Evento: Cliente desconectado
-client.on('disconnected', (reason) => {
+client.on('disconnected', async (reason) => {
     console.log('⚠️ Cliente desconectado:', reason);
+    await updateBotStatus('offline');
 });
 
 // Evento: Mensagem recebida

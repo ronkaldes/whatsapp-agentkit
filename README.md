@@ -9,7 +9,10 @@ Bot do WhatsApp com IA da OpenAI usando a biblioteca [whatsapp-web.js](https://w
 - 🔄 **Histórico de conversas** mantido por chat
 - 🎯 **Comandos especiais** para controle do bot
 - 🔐 **Autenticação segura** com QR Code
-- 📊 **Logs detalhados** para monitoramento
+- 📊 **Dashboard Web** com monitoramento em tempo real
+- 💬 **Visualização de mensagens** com busca e filtros
+- 📈 **Estatísticas detalhadas** por conversa
+- 🗄️ **Persistência no Supabase** de todas as mensagens
 - 🛡️ **Tratamento de erros** robusto
 
 ## 🚀 Instalação
@@ -48,23 +51,50 @@ npm run build
 
 ## 🎯 Como Usar
 
-### Iniciar o Bot
+### Iniciar o Bot e Dashboard
 
-#### 🪟 Windows - Usando arquivos .bat (Recomendado)
+#### 🚀 Método Rápido (2 Terminais)
+
+**Terminal 1 - Bot:**
+```bash
+npm run dev
+```
+
+**Terminal 2 - Dashboard:**
+```bash
+npm run dev:frontend
+```
+
+Depois acesse: `http://localhost:5173`
+
+#### 🪟 Windows - Usando arquivos .bat
 
 Basta dar duplo clique nos arquivos:
 
-- **`start_dev.bat`** - Inicia em modo desenvolvimento
+- **`start_dev.bat`** - Inicia o bot em modo desenvolvimento
 - **`start_prod.bat`** - Compila e inicia em modo produção
+
+#### 🐧 Linux/Mac - Usando scripts shell
+
+```bash
+./START_BOT.sh          # Inicia o bot
+./START_DASHBOARD.sh    # Inicia o dashboard (em outro terminal)
+```
 
 #### 💻 Via linha de comando
 
 ```bash
-# Modo desenvolvimento (TypeScript)
+# Bot - Modo desenvolvimento
 npm run dev
 
-# Modo produção (JavaScript compilado)
+# Bot - Modo produção
 npm start
+
+# Dashboard - Modo desenvolvimento
+npm run dev:frontend
+
+# Dashboard - Preview produção
+npm run preview
 ```
 
 ### Primeira Execução
@@ -82,6 +112,51 @@ npm run dev
    - Escaneie o QR Code
 
 3. **Pronto!** O bot estará funcionando e responderá às mensagens
+
+## 📊 Dashboard Web
+
+O projeto inclui um dashboard web moderno para monitorar o bot em tempo real.
+
+### Acessar o Dashboard
+
+1. Inicie o dashboard em um terminal separado:
+```bash
+npm run dev:frontend
+```
+
+2. Abra seu navegador em: `http://localhost:5173`
+
+### Funcionalidades do Dashboard
+
+**Dashboard Tab:**
+- Status do bot em tempo real (online/offline/connecting)
+- Estatísticas rápidas (mensagens totais, mensagens de hoje, chats ativos)
+- QR Code para autenticação (quando o bot está conectando)
+- Visualização das mensagens mais recentes
+
+**Messages Tab:**
+- Lista completa de todas as mensagens
+- Atualizações em tempo real conforme novas mensagens chegam
+- Busca por conteúdo ou nome do contato
+- Filtros (todas/usuários/bot)
+- Timestamp e chat ID de cada mensagem
+
+**Statistics Tab:**
+- Visão geral de métricas (mensagens totais, por usuário, por bot, chats únicos)
+- Estatísticas detalhadas por conversa
+- Contadores de mensagens de usuário vs bot
+- Horário da última atividade por chat
+- Ordenação por mais mensagens ou mais recente
+
+### Tecnologias do Dashboard
+
+- **Frontend**: React 19 + TypeScript
+- **Build Tool**: Vite
+- **Database**: Supabase (PostgreSQL)
+- **Real-time**: Supabase Realtime subscriptions
+- **Styling**: Custom CSS com design system
+
+Para mais informações sobre o dashboard, consulte `DASHBOARD.md`
 
 ## 📱 Comandos Disponíveis
 
@@ -123,33 +198,55 @@ Edite o arquivo `config.ts` para personalizar:
 
 ```
 whatsapp-agentkit/
-├── src/
-│   ├── bot.ts              # Bot principal do WhatsApp
-│   ├── openai-simple.ts    # Integração com a API da OpenAI
-│   └── index.ts            # Arquivo de entrada
-├── dist/                   # Arquivos compilados (gerado automaticamente)
-├── session/                # Sessão do WhatsApp (gerado automaticamente)
-├── start_dev.bat           # 🪟 Iniciar em modo desenvolvimento
-├── start_prod.bat          # 🪟 Iniciar em modo produção
+├── src/                       # Código fonte do bot
+│   ├── bot.ts                # Bot principal do WhatsApp
+│   ├── openai-simple.ts      # Integração com a API da OpenAI
+│   └── index.ts              # Arquivo de entrada
+├── frontend/                  # Dashboard web
+│   ├── src/
+│   │   ├── components/       # Componentes React
+│   │   ├── lib/             # Utilitários (Supabase client)
+│   │   ├── App.tsx          # Componente principal
+│   │   └── main.tsx         # Entry point
+│   ├── index.html           # Template HTML
+│   └── .env                 # Variáveis de ambiente do frontend
+├── dist/                     # Bot compilado (gerado automaticamente)
+├── dist-frontend/           # Dashboard compilado (gerado automaticamente)
+├── session/                 # Sessão do WhatsApp (gerado automaticamente)
+├── start_dev.bat           # 🪟 Iniciar bot (desenvolvimento)
+├── start_prod.bat          # 🪟 Iniciar bot (produção)
+├── START_BOT.sh            # 🐧 Iniciar bot (Linux/Mac)
+├── START_DASHBOARD.sh      # 🐧 Iniciar dashboard (Linux/Mac)
+├── vite.config.ts          # Configuração do Vite
 ├── package.json            # Dependências e scripts
 ├── tsconfig.json           # Configuração do TypeScript
+├── .env                    # Variáveis de ambiente
 ├── .env.example            # Exemplo de variáveis de ambiente
 ├── README.md               # Este arquivo
+├── DASHBOARD.md            # Documentação do dashboard
+├── GETTING_STARTED.md      # Guia de início rápido
 └── RELATORIO_SISTEMA.md    # Documentação técnica completa
 ```
 
 ## 🛠️ Scripts Disponíveis
 
 ```bash
-# Desenvolvimento
-npm run dev          # Executa em modo desenvolvimento
+# Bot - Desenvolvimento
+npm run dev              # Executa bot em modo desenvolvimento
 
-# Produção
-npm run build        # Compila TypeScript para JavaScript
-npm start           # Executa versão compilada
+# Bot - Produção
+npm run build           # Compila bot e frontend
+npm start              # Executa versão compilada do bot
+
+# Dashboard - Desenvolvimento
+npm run dev:frontend    # Inicia dashboard em http://localhost:5173
+
+# Dashboard - Produção
+npm run build:frontend  # Compila apenas o frontend
+npm run preview        # Preview do dashboard em produção
 
 # Testes
-npm test            # Executa testes (quando implementados)
+npm test               # Executa testes (quando implementados)
 ```
 
 ## 🔒 Segurança
